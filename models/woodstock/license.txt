@@ -1,0 +1,11 @@
+Model Information:
+* title:	Day#32: Woodstock
+* source:	https://sketchfab.com/3d-models/day32-woodstock-f951ea2619474a65a95b4f5bdd0c8f44
+* author:	JuanG3D (https://sketchfab.com/juang3d)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Day#32: Woodstock" (https://sketchfab.com/3d-models/day32-woodstock-f951ea2619474a65a95b4f5bdd0c8f44) by JuanG3D (https://sketchfab.com/juang3d) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
