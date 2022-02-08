@@ -20,6 +20,7 @@ let oldTime = new Date().getTime();
 let ennemiesPool = [];
 let particlesPool = [];
 let particlesInUse = [];
+let persos = [];
 
 function resetGame(){
   game = {speed:0,
@@ -28,7 +29,7 @@ function resetGame(){
           targetBaseSpeed:.00035,
           incrementSpeedByTime:.0000025,
           incrementSpeedByLevel:.000005,
-          distanceForSpeedUpdate:100,
+          distanceForSpeedUpdate:200,
           speedLastUpdate:0,
 
           distance:0,
@@ -39,33 +40,33 @@ function resetGame(){
           level:1,
           levelLastUpdate:0,
           distanceForLevelUpdate:1000,
+          woodstocklevels:[85, -65, -115],
 
-          planeDefaultHeight:50,
-          planeAmpHeight:80,
-          planeAmpWidth:75,
-          planeMoveSensivity:0.005,
-          planeRotXSensivity:0.0008,
-          planeRotZSensivity:0.0004,
-          planeFallSpeed:.001,
-          planeMinSpeed:1,
-          planeMaxSpeed:1.4,
-          planeSpeed:0,
-          planeCollisionDisplacementX:0,
-          planeCollisionSpeedX:0,
+          canoeDefaultHeight:100,
+          canoeAmpHeight:150,
+          canoeAmpWidth:75,
+          canoeMoveSensivity:0.005,
+          canoeRotXSensivity:0.0002,
+          canoeRotZSensivity:0.0004,
+          canoeFallSpeed:.001,
+          canoeMinSpeed:1.2,
+          canoeMaxSpeed:1.6,
+          canoeSpeed:0,
+          canoeCollisionDisplacementX:0,
+          canoeCollisionSpeedX:0,
 
-          planeCollisionDisplacementY:0,
-          planeCollisionSpeedY:0,
+          canoeCollisionDisplacementY:0,
+          canoeCollisionSpeedY:0,
 
           seaRadius:1000,
           seaLength:800,
-          //seaRotationSpeed:0.006,
           wavesMinAmp : 5,
           wavesMaxAmp : 20,
           wavesMinSpeed : 0.001,
           wavesMaxSpeed : 0.003,
 
-          cameraFarPos:500,
-          cameraNearPos:150,
+          cameraFarPos:150,
+          cameraNearPos:100,
           cameraSensivity:0.002,
 
           coinDistanceTolerance:15,
@@ -88,7 +89,7 @@ function resetGame(){
 //THREEJS RELATED VARIABLES
 
 let scene,
-    camera, fieldOfView, aspectRatio, nearPlane, farPlane,
+    camera, fieldOfView, aspectRatio, nearcanoe, farcanoe,
     renderer,
     container,
     controls;
@@ -108,18 +109,18 @@ function createScene() {
   scene = new THREE.Scene();
   aspectRatio = WIDTH / HEIGHT;
   fieldOfView = 50;
-  nearPlane = .1;
-  farPlane = 10000;
+  nearcanoe = .1;
+  farcanoe = 10000;
   camera = new THREE.PerspectiveCamera(
     fieldOfView,
     aspectRatio,
-    nearPlane,
-    farPlane
+    nearcanoe,
+    farcanoe
     );
   scene.fog = new THREE.Fog(0xf7d9aa, 100,950);
   camera.position.x = 0;
   camera.position.z = 200;
-  camera.position.y = game.planeDefaultHeight;
+  camera.position.y = 0;
 
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setSize(WIDTH, HEIGHT);
@@ -194,7 +195,6 @@ function createLights() {
 
   let ch = new THREE.CameraHelper(shadowLight.shadow.camera);
 
-  //scene.add(ch);
   scene.add(hemisphereLight);
   scene.add(shadowLight);
   scene.add(ambientLight);
@@ -316,7 +316,7 @@ EnnemiesHolder.prototype.spawnEnnemies = function(){
     }
 
     ennemy.angle = - (i*0.1);
-    ennemy.distance = game.seaRadius + game.planeDefaultHeight + (-1 + Math.random() * 2) * (game.planeAmpHeight-20);
+    ennemy.distance = game.seaRadius + game.canoeDefaultHeight + (-1 + Math.random() * 2) * (game.canoeAmpHeight-20);
     ennemy.mesh.position.y = -game.seaRadius + Math.sin(ennemy.angle)*ennemy.distance;
     ennemy.mesh.position.x = Math.cos(ennemy.angle)*ennemy.distance;
 
@@ -337,7 +337,6 @@ EnnemiesHolder.prototype.rotateEnnemies = function(){
     ennemy.mesh.rotation.z += Math.random()*.1;
     ennemy.mesh.rotation.y += Math.random()*.1;
 
-    //let globalEnnemyPosition =  ennemy.mesh.localToWorld(new THREE.Vector3());
     let diffPos = canoe.position.clone().sub(ennemy.mesh.position.clone());
     let d = diffPos.length();
     if (d<game.ennemyDistanceTolerance){
@@ -345,8 +344,8 @@ EnnemiesHolder.prototype.rotateEnnemies = function(){
 
       ennemiesPool.unshift(this.ennemiesInUse.splice(i,1)[0]);
       this.mesh.remove(ennemy.mesh);
-      game.planeCollisionSpeedX = 100 * diffPos.x / d;
-      game.planeCollisionSpeedY = 100 * diffPos.y / d;
+      game.canoeCollisionSpeedX = 100 * diffPos.x / d;
+      game.canoeCollisionSpeedY = 100 * diffPos.y / d;
       ambientLight.intensity = 2;
 
       removeEnergy();
@@ -440,7 +439,7 @@ CoinsHolder = function (nCoins){
 CoinsHolder.prototype.spawnCoins = function(){
 
   let nCoins = 1 + Math.floor(Math.random()*10);
-  let d = game.seaRadius + game.planeDefaultHeight + (-1 + Math.random() * 2) * (game.planeAmpHeight-20);
+  let d = game.seaRadius + game.canoeDefaultHeight + (-1 + Math.random() * 2) * (game.canoeAmpHeight-20);
   let amplitude = 10 + Math.round(Math.random()*10);
   for (let i=0; i<nCoins; i++){
     let coin;
@@ -469,7 +468,6 @@ CoinsHolder.prototype.rotateCoins = function(){
     coin.mesh.rotation.z += Math.random()*.1;
     coin.mesh.rotation.y += Math.random()*.1;
 
-    //let globalCoinPosition =  coin.mesh.localToWorld(new THREE.Vector3());
     let diffPos = canoe.position.clone().sub(coin.mesh.position.clone());
     let d = diffPos.length();
     if (d<game.coinDistanceTolerance){
@@ -530,12 +528,39 @@ function createWoodstock(){
     function ( gltf ) {
       
       const woodstock = gltf.scene;
-      //const mesh = canoe.children[1];
       woodstock.scale.set(16.,16.,16.);
       woodstock.rotation.y = 45;
       woodstock.position.x = 35;
       woodstock.position.y = 35;
+      persos.push(woodstock);
       canoe.add(woodstock);
+  
+    },
+    // called while loading is progressing
+    function ( xhr ) {
+      console.log( ( xhr.loaded / xhr.total * 100 ) + '% Woodstock loaded' );
+    },
+    // called when loading has errors
+    function ( error ) {
+      console.log( 'An error happened' );
+    });
+}
+
+function createWoodstock2(i, x){
+
+  loader.load(
+    // resource URL
+    'woodstock.glb',
+    // called when the resource is loaded
+    function ( gltf ) {
+      
+      const woodstock = gltf.scene;
+      woodstock.scale.set(16.,16.,16.);
+      woodstock.rotation.y = 45;
+      woodstock.position.x = x;
+      woodstock.position.y = 35;
+      persos.push(woodstock);
+      canoe.add(persos[i]);
   
     },
     // called while loading is progressing
@@ -558,7 +583,7 @@ function createCanoe(){
       
       canoe = gltf.scene;
       canoe.scale.set(.25,.25,.25);
-      canoe.position.y = 50;
+      canoe.position.y = 0;
 
       createSnoopy();
       createWoodstock();
@@ -642,6 +667,9 @@ function loop(){
     if (Math.floor(game.distance)%game.distanceForLevelUpdate == 0 && Math.floor(game.distance) > game.levelLastUpdate){
       game.levelLastUpdate = Math.floor(game.distance);
       game.level++;
+      if (game.level < 5) {
+        createWoodstock2(game.level-1, game.woodstocklevels[game.level-2]);
+      }
       fieldLevel.innerHTML = Math.floor(game.level);
 
       game.targetBaseSpeed = game.initSpeed + game.incrementSpeedByLevel*game.level
@@ -651,14 +679,15 @@ function loop(){
     updateDistance();
     updateEnergy();
     game.baseSpeed += (game.targetBaseSpeed - game.baseSpeed) * deltaTime * 0.02;
-    game.speed = game.baseSpeed * game.planeSpeed;
+    game.speed = game.baseSpeed * game.canoeSpeed;
 
   }else if(game.status=="gameover"){
+
     game.speed *= .99;
     canoe.rotation.z += (-Math.PI/2 - canoe.rotation.z)*.0002*deltaTime;
     canoe.rotation.x += 0.0003*deltaTime;
-    game.planeFallSpeed *= 1.05;
-    canoe.position.y -= game.planeFallSpeed*deltaTime;
+    game.canoeFallSpeed *= 1.05;
+    canoe.position.y -= game.canoeFallSpeed*deltaTime;
 
     if (canoe.position.y <-200){
       showReplay();
@@ -670,8 +699,8 @@ function loop(){
   }
 
   
-  canoe.rotation.x +=.2 + game.planeSpeed * deltaTime*.005;
-  sea.mesh.rotation.z += game.speed*deltaTime;//*game.seaRotationSpeed;
+  canoe.rotation.x +=.2 + game.canoeSpeed * deltaTime*.005;
+  sea.mesh.rotation.z += game.speed*deltaTime;
 
   if ( sea.mesh.rotation.z > 2*Math.PI)  sea.mesh.rotation.z -= 2*Math.PI;
 
@@ -681,7 +710,6 @@ function loop(){
   ennemiesHolder.rotateEnnemies();
 
   sky.moveClouds();
-  //sea.moveWaves();
 
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
@@ -726,31 +754,31 @@ function removeEnergy(){
 
 function updateCanoe(){
 
-  game.planeSpeed = normalize(mousePos.x,-.5,.5,game.planeMinSpeed, game.planeMaxSpeed);
-  let targetY = normalize(mousePos.y,-.75,.75,50-game.planeAmpHeight, 50+game.planeAmpHeight);
-  let targetX = normalize(mousePos.x,-1,1,-game.planeAmpWidth*.7, -game.planeAmpWidth);
+  game.canoeSpeed = normalize(mousePos.x,-.5,.5,game.canoeMinSpeed, game.canoeMaxSpeed);
+  let targetY = normalize(mousePos.y,-.75,.75,game.canoeDefaultHeight-70, game.canoeDefaultHeight+game.canoeAmpHeight);
+  let targetX = normalize(mousePos.x,-1,1,-game.canoeAmpWidth*.7, -game.canoeAmpWidth);
 
-  game.planeCollisionDisplacementX += game.planeCollisionSpeedX;
-  targetX += game.planeCollisionDisplacementX;
+  game.canoeCollisionDisplacementX += game.canoeCollisionSpeedX;
+  targetX += game.canoeCollisionDisplacementX;
 
 
-  game.planeCollisionDisplacementY += game.planeCollisionSpeedY;
-  targetY += game.planeCollisionDisplacementY;
+  game.canoeCollisionDisplacementY += game.canoeCollisionSpeedY;
+  targetY += game.canoeCollisionDisplacementY;
 
-  canoe.position.y += (targetY-canoe.position.y)*deltaTime*game.planeMoveSensivity;
-  canoe.position.x += (targetX-canoe.position.x)*deltaTime*game.planeMoveSensivity;
+  canoe.position.y += (targetY-canoe.position.y)*deltaTime*game.canoeMoveSensivity;
+  canoe.position.x += (targetX-canoe.position.x)*deltaTime*game.canoeMoveSensivity;
 
-  canoe.rotation.z = (targetY-canoe.position.y)*deltaTime*game.planeRotXSensivity;
-  canoe.rotation.x = (canoe.position.y-targetY)*deltaTime*game.planeRotZSensivity;
-  let targetCameraZ = normalize(game.planeSpeed, game.planeMinSpeed, game.planeMaxSpeed, game.cameraNearPos, game.cameraFarPos);
+  canoe.rotation.z = (targetY-canoe.position.y)*deltaTime*game.canoeRotXSensivity;
+  canoe.rotation.x = (canoe.position.y-targetY)*deltaTime*game.canoeRotZSensivity;
+  let targetCameraZ = normalize(game.canoeSpeed, game.canoeMinSpeed, game.canoeMaxSpeed, game.cameraNearPos, game.cameraFarPos);
   camera.fov = normalize(mousePos.x,-1,1,40, 80);
   camera.updateProjectionMatrix ()
   camera.position.y += (canoe.position.y - camera.position.y)*deltaTime*game.cameraSensivity;
 
-  game.planeCollisionSpeedX += (0-game.planeCollisionSpeedX)*deltaTime * 0.03;
-  game.planeCollisionDisplacementX += (0-game.planeCollisionDisplacementX)*deltaTime *0.01;
-  game.planeCollisionSpeedY += (0-game.planeCollisionSpeedY)*deltaTime * 0.03;
-  game.planeCollisionDisplacementY += (0-game.planeCollisionDisplacementY)*deltaTime *0.01;
+  game.canoeCollisionSpeedX += (0-game.canoeCollisionSpeedX)*deltaTime * 0.03;
+  game.canoeCollisionDisplacementX += (0-game.canoeCollisionDisplacementX)*deltaTime *0.01;
+  game.canoeCollisionSpeedY += (0-game.canoeCollisionSpeedY)*deltaTime * 0.03;
+  game.canoeCollisionDisplacementY += (0-game.canoeCollisionDisplacementY)*deltaTime *0.01;
 }
 
 
