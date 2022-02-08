@@ -439,7 +439,7 @@ CoinsHolder = function (nCoins){
 CoinsHolder.prototype.spawnCoins = function(){
 
   let nCoins = 1 + Math.floor(Math.random()*10);
-  let d = game.seaRadius + game.canoeDefaultHeight + (-1 + Math.random() * 2) * (game.canoeAmpHeight-20);
+  let d = game.seaRadius + game.canoeDefaultHeight + (-1 + Math.random() * 2) * (game.canoeAmpHeight-70);
   let amplitude = 10 + Math.round(Math.random()*10);
   for (let i=0; i<nCoins; i++){
     let coin;
