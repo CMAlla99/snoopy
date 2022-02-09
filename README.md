@@ -17,3 +17,20 @@ Read more here: [License](http://tympanus.net/codrops/licensing/)
 - [Three.js](http://threejs.org/)
 - [TweenMax](http://greensock.com)
 
+
+## Idea of the interface
+
+![image](img/level1.png)
+
+![image](img/level2.png)
+
+When a level is success, a woodstock is add on the boat.
+
+
+## Improvement to make by future
+
+That a woodstock is like a blue pills and when the boat catch the little bird, the bird is add on the boat.
+When the boat is full, the player win.
+
+
+
